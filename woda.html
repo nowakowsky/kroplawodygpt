@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <script>
+        let drop;
+        let waterHeight = 300;
+        let amplitude = 0;
+        let wavelength = 100;
+        let speed = 0.01;
+        let phase = 0;
+        let dropSpeed = 2;
+        let showDrop = true;
+        let surfaceY;
+
+        function setup() {
+            createCanvas(600, 400);
+            surfaceY = waterHeight;
+            drop = new Drop(width / 2, 0, 20, color(0, 0, 255), dropSpeed);
+        }
+
+        function draw() {
+            background(255);
+
+            if (showDrop) {
+                drop.fall();
+                drop.display();
+
+                if (drop.y >= waterHeight && drop.isFalling) {
+                    drop.stop();
+                    amplitude = 30;
+                    showDrop = false;
+                }
+            } else {
+                amplitude -= 0.1;
+                if (amplitude < 0) {
+                    amplitude = 0;
+                }
+            }
+
+            phase += speed;
+
+            drawWater();
+        }
+
+        // Definicja kropli
+        function Drop(x, y, size, col, speed) {
+            this.x = x;
+            this.y = y;
+            this.size = size;
+            this.col = col;
+            this.speed = speed;
+            this.isFalling = true;
+
+            this.fall = function() {
+                if (this.isFalling) {
+                    this.y += this.speed;
+                    this.speed += 0.05;
+                }
+            }
+
+            this.stop = function() {
+                this.speed = 0;
+                this.isFalling = false;
+            }
+
+            this.display = function() {
+                fill(this.col);
+                noStroke();
+                ellipse(this.x, this.y, this.size, this.size * 1.5);
+            }
+        }
+
+        // Funkcja rysująca wodę
+        function drawWater() {
+            let startY = surfaceY - amplitude;
+            let endY = height;
+
+            for (let x = 0; x < width; x += 10) {
+                let distanceFromCenter = abs(x - width / 2);
+                let mirroredPhase = phase + distanceFromCenter / wavelength;
+                let y = startY + sin(mirroredPhase) * amplitude;
+                fill(0, 0, 255);
+                noStroke();
+                rect(x, y, 10, endY - y);
+            }
+        }
+    </script>
+</body>
+</html>
